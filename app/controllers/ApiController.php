@@ -247,7 +247,7 @@ class APIController extends BaseController {
 		return $response;
 	}
 
-	private function fetchBuild($slug, $build)
+	private function fetchBuild($slug, $build, $targets = array(0,1))
 	{
 		$response = array();
 
@@ -270,7 +270,8 @@ class APIController extends BaseController {
 		} else {
 			$build = Build::with('Modversions')
 						->where("modpack_id", "=", $modpack->id)
-						->where("version", "=", $build)->first();
+						->where("version", "=", $build)->first()
+						->whereIn("target", $targets);
 			if (empty($this->client) && empty($this->key))
 				Cache::put('modpack.'.$slug.'.build.'.$buildpass,$build,5);
 		}
