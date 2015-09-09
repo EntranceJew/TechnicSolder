@@ -87,10 +87,9 @@ class ModpackController extends BaseController {
 
 				$build->version = Input::get('version');
 
-				$minecraft = explode(':', Input::get('minecraft'));
+				$minecraft = Input::get('minecraft');
 
-				$build->minecraft = $minecraft[0];
-				$build->minecraft_md5 = $minecraft[1];
+				$build->minecraft = $minecraft;
 				$build->min_java = Input::get('java-version');
 				$build->min_memory = Input::get('memory-enabled') ? Input::get('memory') : '';
 				$build->save();
@@ -142,12 +141,11 @@ class ModpackController extends BaseController {
 		$build->modpack_id = $modpack->id;
 		$build->version = Input::get('version');
 
-		$minecraft = explode(':', Input::get('minecraft'));
+		$minecraft = Input::get('minecraft');
 
-		$build->minecraft = $minecraft[0];
-		$build->minecraft_md5 = $minecraft[1];
+		$build->minecraft = $minecraft;
 		$build->min_java = Input::get('java-version');
-		$build->min_memory = Input::get('memory-enabled') ? Input::get('memory') : '';
+		$build->min_memory = Input::get('memory-enabled') ? Input::get('memory') : 0;
 		$build->save();
 		Cache::forget('modpack.' . $modpack->slug);
 		if (!empty($clone))
@@ -388,7 +386,7 @@ class ModpackController extends BaseController {
 
 				if ($success = $logoimg->save($resourcePath . '/logo.png', 100)) {
 					$modpack->logo = true;
-					
+
 					if ($useS3) {
 						$result = $client->putObject(array(
 									'Bucket' => $S3bucket,
@@ -455,7 +453,7 @@ class ModpackController extends BaseController {
 
 				if ($success = $backgroundimg->save($resourcePath . '/background.jpg', 100)) {
 					$modpack->background = true;
-					
+
 					if ($useS3) {
 						$result = $client->putObject(array(
 									'Bucket' => $S3bucket,
@@ -579,10 +577,10 @@ class ModpackController extends BaseController {
 	public function anyModify($action = null)
 	{
 		if (!Request::ajax())
-			return App::abort('404');
+			return Response::view('errors.missing', array(), 404);
 
 		if (empty($action))
-			return Response::error('500');
+			return Response::view('errors.500', array(), 500);
 
 		switch ($action)
 		{
@@ -593,11 +591,14 @@ class ModpackController extends BaseController {
 							->where('build_id','=', Input::get('build_id'))
 							->where('modversion_id', '=', $modversion_id)
 							->update(array('modversion_id' => $version_id));
-				$status = 'success';
-				if ($affected == 0 && ($modversion_id != $version_id)){
-					$status = 'failed';
+				if ($affected == 0) {
+					if ($modversion_id != $version_id) {
+						$status = 'failed';
+					} else {
+						$status = 'aborted';
+					}
 				} else {
-					$status = 'aborted';
+					$status = 'success';
 				}
 				return Response::json(array(
 							'status' => $status,
@@ -649,6 +650,8 @@ class ModpackController extends BaseController {
 				$modpack->recommended = $new_version;
 				$modpack->save();
 
+				Cache::forget('modpack.' . $modpack->slug);
+
 				return Response::json(array(
 						"success" => "Updated ".$modpack->name."'s recommended  build to ".$new_version,
 						"version" => $new_version
@@ -659,6 +662,8 @@ class ModpackController extends BaseController {
 				$new_version = Input::get('latest');
 				$modpack->latest = $new_version;
 				$modpack->save();
+
+				Cache::forget('modpack.' . $modpack->slug);
 
 				return Response::json(array(
 						"success" => "Updated ".$modpack->name."'s latest  build to ".$new_version,
