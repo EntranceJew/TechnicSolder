@@ -193,6 +193,7 @@ class ModController extends BaseController {
 			$mod_id = Input::get('mod-id');
 			$md5 = Input::get('add-md5');
 			$version = Input::get('add-version');
+			$context = Input::get('add-context');
 			if (empty($mod_id) || empty($version))
 				return Response::json(array(
 							'status' => 'error',
@@ -218,6 +219,7 @@ class ModController extends BaseController {
 			$ver->mod_id = $mod->id;
 			$ver->md5 = $md5;
 			$ver->version = $version;
+			$ver->context = $context;
 
 			if ($md5 == $file_md5 && !empty($md5)) {
 				$ver->md5 = $md5;

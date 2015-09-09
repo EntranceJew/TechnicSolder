@@ -80,6 +80,7 @@
 					<thead>
 						<th></th>
 						<th style="width: 15%">Version</th>
+						<th>Context</th>
 						<th>MD5</th>
 						<th>Download URL</th>
 						<th style="width: 15%"></th>
@@ -90,7 +91,15 @@
 								<input type="hidden" name="mod-id" value="{{ $mod->id }}">
 								<td></td>
 								<td>
-									<input type="text" name="add-version" id="add-version" class="form-control" placeholder="1.0.0"></td>
+									<input type="text" name="add-version" id="add-version" class="form-control" placeholder="1.0.0">
+								</td>
+								<td>
+									<select type="text" name="add-context" id="add-context" class="form-control">
+										<option value="shared">Shared</option>
+										<option value="client-only">Client Only</option>
+										<option value="server-only">Server Only</option>
+									</select>
+								</td>
 								<td>
 									<input type="text" name="add-md5" id="add-md5" class="form-control" placeholder="N/A"></td>
 								</td>
