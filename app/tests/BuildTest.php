@@ -31,6 +31,7 @@ class BuildTest extends TestCase {
 		$data = array(
 			'version' => '1.1.0',
 			'minecraft' => '1.7.10',
+			'forge-version' => '1.7.10-10.13.4.1492-1.7.10',
 			'java-version' => '1.7',
 			'memory' => '1536',
 			'memory-enabled' => 1
@@ -61,6 +62,7 @@ class BuildTest extends TestCase {
 			'confirm-edit' => '1',
 			'version' => '1.1.0',
 			'minecraft' => '1.7.10',
+			'forge-version' => '1.7.10-10.13.4.1492-1.7.10',
 			'java-version' => '1.8',
 			'memory' => '1024',
 			'memory-enabled' => '1'

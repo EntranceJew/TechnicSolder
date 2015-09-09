@@ -23,6 +23,7 @@
 		<div class="col-md-6">
 			<label>Build Version: <span class="label label-default">{{ $build->version }}</span></label><br>
 			<label>Minecraft Version: <span class="label label-default">{{ $build->minecraft }}</span></label><br>
+			<label>Forge Version: <span class="label label-default">{{ !empty($build->forge) ? $build->forge : 'Not Required'  }}</span></label><br>
 		</div>
 		<div class="col-md-6">
 			<label>Java Version: <span class="label label-default">{{ !empty($build->min_java) ? $build->min_java : 'Not Required'  }}</span></label><br>

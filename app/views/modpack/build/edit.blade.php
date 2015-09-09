@@ -30,6 +30,11 @@
 		            <label for="version">Build Number</label>
 		            <input type="text" class="form-control" name="version" id="version"  value="{{ $build->version }}">
 		        </div>
+				<div class="form-group">
+					<label for="forge-version">Forge Version</label>
+					<input type="text" class="form-control" name="forge-version" id="forge-version"  value="{{ $build->forge }}">
+					<p class="help-block">This allow servers to dynamically install the correct forge version.</p>
+				</div>
 		        <div class="form-group">
 		            <label for="version">Minecraft Version</label>
 		            <select class="form-control" name="minecraft">
