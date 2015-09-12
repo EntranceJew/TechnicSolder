@@ -29,6 +29,7 @@
 	},
 	"require-dev": {
 		"barryvdh/laravel-debugbar": "~1.8@dev",
+		"barryvdh/laravel-ide-helper": "~1.11",
         "mockery/mockery": "master@dev",
 		"phpunit/phpunit": "~4.0"
 	},
@@ -49,11 +50,15 @@
 			"php -r \"chmod('app/storage', 0775);\"",
 			"php -r \"chmod('public/resources', 0775);\"",
 			"php artisan clear-compiled",
+			"php artisan ide-helper:generate",
+			"php artisan ide-helper:models -N",
 			"php artisan optimize",
 			"php artisan key:generate"
 		],
 		"post-update-cmd": [
 			"php artisan clear-compiled",
+			"php artisan ide-helper:generate",
+			"php artisan ide-helper:models -N",
 			"php artisan optimize"
 		],
 		"tests": [

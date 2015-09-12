@@ -9,3 +9,7 @@ public/vendor
 app/database/*.sqlite
 site/
 bootstrap/compiled.php
+
+_ide_helper_models.php
+_ide_helper.php
+.idea/
