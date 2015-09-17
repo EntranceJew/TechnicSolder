@@ -132,3 +132,10 @@ input[type=file] {
 	border-bottom: none;
 	margin: 0;
 }
+
+.loader {
+	background: url('/img/loading.gif');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}

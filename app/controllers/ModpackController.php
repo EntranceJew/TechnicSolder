@@ -111,10 +111,13 @@ class ModpackController extends BaseController {
 
 		$minecraft = MinecraftUtils::getMinecraft();
 
+		$modpacks = Modpack::where('id', '!=', $modpack_id)->get();
+
 		return View::make('modpack.build.create')
 			->with(array(
 				'modpack' => $modpack,
-				'minecraft' => $minecraft
+				'minecraft' => $minecraft,
+				'modpacks' => $modpacks
 				));
 	}
 
@@ -136,7 +139,8 @@ class ModpackController extends BaseController {
 		if ($validation->fails())
 			return Redirect::back()->withErrors($validation->messages());
 
-		$clone = Input::get('clone');
+		$clone_modpack = Input::get('clone-modpack');
+		$clone_build_version = Input::get('clone-build-version');
 		$build = new Build();
 		$build->modpack_id = $modpack->id;
 		$build->version = Input::get('version');
@@ -147,10 +151,13 @@ class ModpackController extends BaseController {
 		$build->min_java = Input::get('java-version');
 		$build->min_memory = Input::get('memory-enabled') ? Input::get('memory') : 0;
 		$build->save();
+
 		Cache::forget('modpack.' . $modpack->slug);
-		if (!empty($clone))
+		if (!empty($clone_build_version) and !empty($clone_modpack))
 		{
-			$clone_build = Build::find($clone);
+			$clone_modpack_id = Modpack::where('slug', $clone_modpack)->get()->first()->id;
+			$clone_build = Build::where('modpack_id', $clone_modpack_id)
+				->where('version', $clone_build_version)->get()->first();
 			$version_ids = array();
 			foreach ($clone_build->modversions as $cver)
 			{

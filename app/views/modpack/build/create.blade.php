@@ -36,15 +36,35 @@
 						@endforeach
 					</select>
 				</div>
-				<div class="form-group">
-					<label for="clone">Clone Build</label>
-					<select class="form-control" name="clone">
-						<option value="">Do not clone</option>
-						@foreach ($modpack->builds as $build)
-							<option value="{{ $build->id }}">{{ $build->version }}</option>
-						@endforeach
-					</select>
-					<p class="help-block">This will clone all the mods and mod versions of another build in this pack.</p>
+				<hr>
+				<h4>Clone Build</h4>
+				<p>This will clone all the mods and mod versions of another build in the specified pack.</p>
+				<div class="form-group row" id="clone-area">
+					<div class="col-md-6">
+						<div class="form-group has-feedback">
+							<label class="control-label" for="clone-modpack">Modpack to Clone</label>
+							<select class="form-control" name="clone-modpack" id="clone-modpack">
+								<option value="{{ $modpack->slug }}">{{ $modpack->name }}</option>
+								@foreach ($modpacks as $the_modpack)
+									<option value="{{ $the_modpack->slug }}">{{ $the_modpack->name }}</option>
+								@endforeach
+								<option value="totally-nonexistant-pack">Totally Nonexistant Pack</option>
+								<option value="break">Break HTTP Response</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group has-feedback">
+							<label class="control-label" for="clone-build-version">Build Version to Clone</label>
+							<select class="form-control" name="clone-build-version" id="clone-build-version">
+								<option value="">Do not clone</option>
+								@foreach ($modpack->builds as $build)
+									<option value="{{ $build->version }}">{{ $build->version }}</option>
+								@endforeach
+							</select>
+							<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -88,6 +108,86 @@ $('#memory-enabled').change(function(){
     } else {
         $('#memory').val('').prop('disabled', true);
     }
+});
+
+var blame = function(jTarget){
+	$(jTarget).parent().addClass('has-error');
+}
+
+var forgive = function(jTarget){
+	$(jTarget).parent().removeClass('has-error');
+}
+
+var errorOut = function(errorSink, textError){
+	$("<div class='alert alert-danger clone-modpack-error'>"+ textError +"</div>" ).insertBefore( $(errorSink) );
+}
+
+var startWaiting = function(jTarget, statusText){
+	$(".clone-modpack-error").remove();
+	jTarget.parent().addClass('has-waiting').removeClass('has-error');
+	jTarget.prop('disabled', true).addClass('disabled');
+	jTarget.next().addClass('glyphicon-technic');
+	jTarget.empty();
+	jTarget.append($("<option class='status'>"+ statusText+ "</option>"));
+}
+
+var stopWaiting = function(jTarget, statusText){
+	jTarget.parent().removeClass('has-waiting');
+	jTarget.prop('disabled', false).removeClass('disabled');
+	jTarget.next().removeClass('glyphicon-technic');
+	jTarget.empty();
+	jTarget.append($("<option class='status'>"+ statusText+ "</option>"));
+}
+
+var fetchModpackVersions = function(targetElement,modpackSlug,errorSink){
+	targetElement = typeof targetElement !== 'undefined' ?  targetElement : this;
+	var jTarget = $(targetElement);
+	startWaiting(jTarget, "Getting modpack versions ...");
+
+	var targetURL = "/api/modpack/"+modpackSlug;
+	if(modpackSlug == 'break'){
+		targetURL = "/api/breadsticks/";
+	}
+	$.ajax({
+		method: "GET",
+		url: targetURL,
+		dataType: "json",
+		success: function(data){
+			setTimeout(function (){
+				if(data && data.error){
+					stopWaiting(jTarget, "API Error");
+					errorOut(errorSink, data.error);
+					blame("#clone-modpack");
+				} else if(data && data.builds) {
+					stopWaiting(jTarget, "Done");
+
+					jTarget.empty();
+					jTarget.append($("<option>Do not clone.</option>"));
+					for (var buildIndex in data.builds){
+						var buildVersion = data.builds[buildIndex];
+						jTarget.append($("<option></option>")
+								.attr("value",buildVersion).text(buildVersion));
+					}
+
+					jTarget.focus();
+				} else {
+					stopWaiting(jTarget, "Unknown API Error");
+					errorOut(errorSink, "Unknown error. Try again.");
+				}
+			}, 2000);
+		},
+		error: function(j,status,error){
+			stopWaiting(jTarget, "HTTP Error");
+			errorOut(errorSink, j.statusText);
+		}
+	});
+	// good: show new dropdown
+	// bad: show error as dropdown, retry button
+}
+
+$('#clone-modpack').change(function(){
+	forgive($(this));
+	fetchModpackVersions('#clone-build-version', $(this).val(), "#clone-area");
 });
 </script>
 @endsection
