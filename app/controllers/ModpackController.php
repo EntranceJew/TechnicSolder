@@ -103,18 +103,37 @@ class ModpackController extends BaseController {
 		}
 	}
 
-	public function getAddBuild($modpack_id)
+	public function getAddBuild($modpack_id, $clone_modpack_id=null)
 	{
 		$modpack = Modpack::find($modpack_id);
+		$clone_modpack = $modpack;
 		if (empty($modpack))
 			return Redirect::to('modpack/list')->withErrors(new MessageBag(array('Modpack not found')));
 
+		// if not specified, our default clone target is this modpack
+		if (empty($clone_modpack_id)){
+			$clone_modpack_id = $modpack_id;
+		} else {
+			$clone_modpack = Modpack::find($clone_modpack_id);
+		}
+
+		if (empty($clone_modpack_id) or empty($clone_modpack)) {
+			// clone modpack is invalid, either return
+			if (!empty($modpack)) {
+				return Redirect::to('modpack/add-build/' . $modpack->id)->withErrors(new MessageBag(array('Modpack to clone not found')));
+			}
+		}
+
 		$minecraft = MinecraftUtils::getMinecraft();
+
+		$modpacks = Modpack::where('id', '!=', $clone_modpack_id)->get();
 
 		return View::make('modpack.build.create')
 			->with(array(
 				'modpack' => $modpack,
-				'minecraft' => $minecraft
+				'minecraft' => $minecraft,
+				'modpacks' => $modpacks,
+				'clone_modpack' => $clone_modpack
 				));
 	}
 

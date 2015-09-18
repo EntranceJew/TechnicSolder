@@ -21,6 +21,37 @@
 		{{ Form::open() }}
 		<div class="row">
 			<div class="col-md-6">
+				<h4>Clone Build</h4>
+				<p>This will clone all the mods and mod versions of another build in the specified pack.</p>
+				<div class="form-group row" id="clone-area">
+					<div class="col-md-6">
+						<div class="form-group has-feedback">
+							<label class="control-label" for="clone-modpack">Modpack to Clone</label>
+							<select class="form-control" name="clone-modpack" id="clone-modpack">
+								<option value="{{ $clone_modpack->id }}">{{ $clone_modpack->name }}</option>
+								@foreach ($modpacks as $the_modpack)
+									<option value="{{ $the_modpack->id }}">{{ $the_modpack->name }}</option>
+								@endforeach
+								<option value="totally-nonexistant-pack">Totally Nonexistant Pack</option>
+								<option value="break">Break HTTP Response</option>
+							</select>
+						</div>
+						<p class="alert alert-warning">If you change this value after any others, all the rest will be reset. If you're going to clone a build, change this first.</p>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group has-feedback">
+							<label class="control-label" for="clone">Build Version to Clone</label>
+							<select class="form-control" name="clone" id="clone">
+								<option value="">Do not clone</option>
+								@foreach ($clone_modpack->builds as $build)
+									<option value="{{ $build->id }}">{{ $build->version }}</option>
+								@endforeach
+							</select>
+							<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+						</div>
+					</div>
+				</div>
+				<hr>
 				<h4>Create Build</h4>
 				<p>All new builds by default will not be available in the API. They need to be published before they will show up.</p>
 				<hr>
@@ -35,16 +66,6 @@
 						<option value="{{ $version['version'] }}">{{ $version['version'] }}</option>
 						@endforeach
 					</select>
-				</div>
-				<div class="form-group">
-					<label for="clone">Clone Build</label>
-					<select class="form-control" name="clone">
-						<option value="">Do not clone</option>
-						@foreach ($modpack->builds as $build)
-							<option value="{{ $build->id }}">{{ $build->version }}</option>
-						@endforeach
-					</select>
-					<p class="help-block">This will clone all the mods and mod versions of another build in this pack.</p>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -88,6 +109,17 @@ $('#memory-enabled').change(function(){
     } else {
         $('#memory').val('').prop('disabled', true);
     }
+});
+
+$('#clone-modpack').change(function(){
+	var destination = '/modpack/add-build/{{ $modpack->id }}';
+	var target = $(this).val();
+
+	// only provde the $clone_modpack if we need to
+	if (target != "{{ $modpack->id }}"){
+		destination += '/'+target
+	}
+	window.location.href = destination;
 });
 </script>
 @endsection
