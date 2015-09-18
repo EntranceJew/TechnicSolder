@@ -28,12 +28,9 @@
 						<div class="form-group has-feedback">
 							<label class="control-label" for="clone-modpack">Modpack to Clone</label>
 							<select class="form-control" name="clone-modpack" id="clone-modpack">
-								<option value="{{ $clone_modpack->id }}">{{ $clone_modpack->name }}</option>
 								@foreach ($modpacks as $the_modpack)
-									<option value="{{ $the_modpack->id }}">{{ $the_modpack->name }}</option>
+									<option value="{{ $the_modpack->id }}" {{ $the_modpack->id == $clone_modpack->id ? 'selected="selected"' : '' }}>{{ $the_modpack->name }}</option>
 								@endforeach
-								<option value="totally-nonexistant-pack">Totally Nonexistant Pack</option>
-								<option value="break">Break HTTP Response</option>
 							</select>
 						</div>
 						<p class="alert alert-warning">If you change this value after any others, all the rest will be reset. If you're going to clone a build, change this first.</p>
@@ -44,7 +41,7 @@
 							<select class="form-control" name="clone" id="clone">
 								<option value="">Do not clone</option>
 								@foreach ($clone_modpack->builds as $build)
-									<option value="{{ $build->id }}">{{ $build->version }}</option>
+									<option value="{{ $build->id }}" {{ $clone_build_id == $build->id ? 'selected="selected"' : '' }}>{{ $build->version }}</option>
 								@endforeach
 							</select>
 							<span class="glyphicon form-control-feedback" aria-hidden="true"></span>
